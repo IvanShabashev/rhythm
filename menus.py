@@ -251,7 +251,7 @@ def creds():
     instY1 = (31 * res[1]) // 36
     instY2 = (33 * res[1]) // 36
     instX = res[0] // 2
-    instHeight = res[0] // 36
+    instHeight = (3 * res[1]) // 72
     instFont = pygame.font.Font("res/Terminus.ttf", instHeight)
     inst1 = instFont.render("USE UP/DOWN ARROW KEYS TO SCROLL", True, WHITE)
     inst2 = instFont.render("PRESS ESC TO EXIT", True, WHITE)
@@ -260,7 +260,7 @@ def creds():
     inst2Rect = inst2.get_rect()
     inst2Rect.center = (instX, instY2)
     artistX = res[0] // 2
-    artistHeight = (5 * res[0]) // 120
+    artistHeight = (2 * res[1]) // 30
     artistYs = []
     for i in range(10):
         artistYs.append((i + 1) * artistHeight)
