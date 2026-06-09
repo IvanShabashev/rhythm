@@ -246,7 +246,51 @@ def mainMenu():
 
 
 def creds():
-    print("TODO: ADD CREDITS")
+    artists = open("credits.txt").read().split("\n")
+    credHead = 0
+    instY1 = (31 * res[1]) // 36
+    instY2 = (33 * res[1]) // 36
+    instX = res[0] // 2
+    instHeight = res[0] // 36
+    instFont = pygame.font.Font("res/Terminus.ttf", instHeight)
+    inst1 = instFont.render("USE UP/DOWN ARROW KEYS TO SCROLL", True, WHITE)
+    inst2 = instFont.render("PRESS ESC TO EXIT", True, WHITE)
+    inst1Rect = inst1.get_rect()
+    inst1Rect.center = (instX, instY1)
+    inst2Rect = inst2.get_rect()
+    inst2Rect.center = (instX, instY2)
+    artistX = res[0] // 2
+    artistHeight = (5 * res[0]) // 120
+    artistYs = []
+    for i in range(10):
+        artistYs.append((i + 1) * artistHeight)
+    artistFont = pygame.font.Font("res/Terminus.ttf", artistHeight)
+
+    while True:
+        artistSurfaces = []
+        artistRects = []
+        for event in pygame.event.get():
+            # Allow person to close the game
+            if event.type == pygame.QUIT:
+                sys.exit()
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_DOWN and credHead < len(artists)-10:
+                    credHead += 1
+                elif event.key == pygame.K_UP and credHead > 0:
+                    credHead -= 1
+                elif event.key == pygame.K_ESCAPE:
+                    return
+        
+        pygame.draw.rect(DISPLAY, DSLATE, (0, 0, res[0], res[1]))
+        DISPLAY.blit(inst1, inst1Rect)
+        DISPLAY.blit(inst2, inst2Rect)
+        for i in range(10):
+            artistSurfaces.append(artistFont.render(artists[credHead + i], True, WHITE))
+            artistRects.append(artistSurfaces[i].get_rect())
+            artistRects[i].center = (artistX, artistYs[i])
+            DISPLAY.blit(artistSurfaces[i], artistRects[i])
+        pygame.display.update()
+        clock.tick(240)
 
 
 def instructions():
