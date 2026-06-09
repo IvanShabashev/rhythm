@@ -262,7 +262,7 @@ def creds():
     artistX = res[0] // 2
     artistHeight = (2 * res[1]) // 30
     artistYs = []
-    for i in range(10):
+    for i in range(min(10, len(artists))):
         artistYs.append((i + 1) * artistHeight)
     artistFont = pygame.font.Font("res/Terminus.ttf", artistHeight)
 
@@ -280,12 +280,16 @@ def creds():
                     credHead -= 1
                 elif event.key == pygame.K_ESCAPE:
                     return
-        
+
         pygame.draw.rect(DISPLAY, DSLATE, (0, 0, res[0], res[1]))
         DISPLAY.blit(inst1, inst1Rect)
         DISPLAY.blit(inst2, inst2Rect)
-        for i in range(10):
-            artistSurfaces.append(artistFont.render(artists[credHead + i], True, WHITE))
+        for i in range(min(10, len(artists))):
+            artistSurfaces.append(artistFont.render(
+                                                        artists[credHead + i],
+                                                        True,
+                                                        WHITE
+                                                   ))
             artistRects.append(artistSurfaces[i].get_rect())
             artistRects[i].center = (artistX, artistYs[i])
             DISPLAY.blit(artistSurfaces[i], artistRects[i])
