@@ -6,6 +6,7 @@ import time
 from pydub import AudioSegment
 import struct
 from queue import Queue
+import os
 
 
 def mainMenu():
@@ -363,6 +364,8 @@ def songSelect():
     print("TODO: ADD SONG SELECTION SCREEN")
 
 
+# Fix issues when running outside of game directory
+os.chdir(os.path.dirname(__file__))
 # Initialise pygame
 pygame.init()
 clock = pygame.time.Clock()
