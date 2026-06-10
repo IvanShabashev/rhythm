@@ -85,6 +85,10 @@ def mainMenu():
             # Check if person has clicked the mouse
             elif event.type == pygame.MOUSEBUTTONUP:
                 clicked = True
+            # Quit game if person presses escape
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_ESCAPE:
+                    sys.exit()
         # Get player's mouse position
         mouse = pygame.mouse.get_pos()
         # Fill the background with dark slate
@@ -246,12 +250,21 @@ def mainMenu():
 
 
 def creds():
+    # Read list of people in the game's credits
     artists = open("credits.txt").read().split("\n")
+    # Keep track of how far down the list the user has scrolled
     credHead = 0
+    # Calculate position of the instruction text
+    # It should be centered along the X axis
+    # The position along the Y axis was mostly educated trial and error
     instY1 = (31 * res[1]) // 36
     instY2 = (33 * res[1]) // 36
     instX = res[0] // 2
+    # The height of the instruction text was also mostly guesswork
+    # but since it's relative to the screen height, it will scale
+    # properly
     instHeight = (3 * res[1]) // 72
+    # Render the text, positioning it according to the calculations
     instFont = pygame.font.Font("res/Terminus.ttf", instHeight)
     inst1 = instFont.render("USE UP/DOWN ARROW KEYS TO SCROLL", True, WHITE)
     inst2 = instFont.render("PRESS ESC TO EXIT", True, WHITE)
@@ -259,8 +272,13 @@ def creds():
     inst1Rect.center = (instX, instY1)
     inst2Rect = inst2.get_rect()
     inst2Rect.center = (instX, instY2)
+    # Centre people's names along the X axis
+    # The textbox containing people's names should be 2/3 of the screen
+    # at 10 names in the box, each name should be 2/30 of the screen height
     artistX = res[0] // 2
     artistHeight = (2 * res[1]) // 30
+    # each artist's name is at a different Y position
+    # the Y positions are calculated to be spread evenly
     artistYs = []
     for i in range(min(10, len(artists))):
         artistYs.append((i + 1) * artistHeight)
@@ -274,16 +292,21 @@ def creds():
             if event.type == pygame.QUIT:
                 sys.exit()
             elif event.type == pygame.KEYUP:
+                # Allow person to scroll through the list of names
                 if event.key == pygame.K_DOWN and credHead < len(artists)-10:
                     credHead += 1
                 elif event.key == pygame.K_UP and credHead > 0:
                     credHead -= 1
+                # Allow person to go to the previous menu screen
                 elif event.key == pygame.K_ESCAPE:
                     return
 
+        # Fill screen with background colour and draw the instructions text
         pygame.draw.rect(DISPLAY, DSLATE, (0, 0, res[0], res[1]))
         DISPLAY.blit(inst1, inst1Rect)
         DISPLAY.blit(inst2, inst2Rect)
+        # Render 10 artist's names, depending on
+        # how far down the user has scrolled
         for i in range(min(10, len(artists))):
             artistSurfaces.append(artistFont.render(
                                                         artists[credHead + i],
@@ -298,7 +321,42 @@ def creds():
 
 
 def instructions():
-    print("TODO: ADD INSTRUCTIONS")
+    slide = 0
+    instY1 = (31 * res[1]) // 36
+    instY2 = (33 * res[1]) // 36
+    instX = res[0] // 2
+    instHeight = (3 * res[1]) // 72
+    instFont = pygame.font.Font("res/Terminus.ttf", instHeight)
+    inst1 = instFont.render("USE LEFT/RIGHT ARROW KEYS TO NAVIGATE TUTORIAL", True, WHITE)
+    inst2 = instFont.render("PRESS ESC TO EXIT", True, WHITE)
+    inst1Rect = inst1.get_rect()
+    inst1Rect.center = (instX, instY1)
+    inst2Rect = inst2.get_rect()
+    inst2Rect.center = (instX, instY2)
+    while True:
+        for event in pygame.event.get():
+            # Allow person to close the game
+            if event.type == pygame.QUIT:
+                sys.exit()
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_RIGHT and slide < 2:
+                    slide += 1
+                elif event.key == pygame.K_LEFT and slide > 0:
+                    slide -= 1
+                elif event.key == pygame.K_ESCAPE:
+                    return
+
+        pygame.draw.rect(DISPLAY, DSLATE, (0, 0, res[0], res[1]))
+        DISPLAY.blit(inst1, inst1Rect)
+        DISPLAY.blit(inst2, inst2Rect)
+        if slide == 0:
+            pygame.draw.circle(DISPLAY, METAL, (res[0]//2, res[1]//2), min(res)//4)
+        elif slide == 1:
+            pygame.draw.circle(DISPLAY, WHITE, (res[0]//2, res[1]//2), min(res)//4)
+        elif slide == 2:
+            pygame.draw.circle(DISPLAY, WHITE, (res[0]//2, res[1]//2), min(res)//4)
+        pygame.display.update()
+        clock.tick(240)
 
 
 def songSelect():
@@ -323,5 +381,6 @@ DSLATE = (0x6C, 0x75, 0x7D)
 IRON = (0x49, 0x50, 0x57)
 METAL = (0x34, 0x3A, 0x40)
 BLACK = (0x21, 0x25, 0x29)
+FULLBLACK = (0, 0, 0)
 # Render main menu
 mainMenu()
