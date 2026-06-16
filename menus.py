@@ -323,17 +323,24 @@ def creds():
 
 def instructions():
     slide = 0
-    instY1 = (31 * res[1]) // 36
-    instY2 = (33 * res[1]) // 36
-    instX = res[0] // 2
-    instHeight = (3 * res[1]) // 72
-    instFont = pygame.font.Font("res/Terminus.ttf", instHeight)
-    inst1 = instFont.render("USE LEFT/RIGHT ARROW KEYS TO NAVIGATE TUTORIAL", True, WHITE)
-    inst2 = instFont.render("PRESS ESC TO EXIT", True, WHITE)
-    inst1Rect = inst1.get_rect()
-    inst1Rect.center = (instX, instY1)
-    inst2Rect = inst2.get_rect()
-    inst2Rect.center = (instX, instY2)
+    contY1 = (31 * res[1]) // 36
+    contY2 = (33 * res[1]) // 36
+    contX = res[0] // 2
+    contHeight = (3 * res[1]) // 72
+    contFont = pygame.font.Font("res/Terminus.ttf", contHeight)
+    cont1 = contFont.render(
+                                "USE LEFT/RIGHT ARROW KEYS " +
+                                "TO NAVIGATE TUTORIAL",
+                                True,
+                                WHITE
+                           )
+    cont2 = contFont.render("PRESS ESC TO EXIT", True, WHITE)
+    cont1Rect = cont1.get_rect()
+    cont1Rect.center = (contX, contY1)
+    cont2Rect = cont2.get_rect()
+    cont2Rect.center = (contX, contY2)
+    instY1 = (3 * res[1]) // 36
+    instY2 = (5 * res[1]) // 36
     while True:
         for event in pygame.event.get():
             # Allow person to close the game
@@ -348,14 +355,113 @@ def instructions():
                     return
 
         pygame.draw.rect(DISPLAY, DSLATE, (0, 0, res[0], res[1]))
-        DISPLAY.blit(inst1, inst1Rect)
-        DISPLAY.blit(inst2, inst2Rect)
+        DISPLAY.blit(cont1, cont1Rect)
+        DISPLAY.blit(cont2, cont2Rect)
         if slide == 0:
-            pygame.draw.circle(DISPLAY, METAL, (res[0]//2, res[1]//2), min(res)//4)
+            pygame.draw.circle(
+                                   DISPLAY,
+                                   WHITE,
+                                   (3*res[0]//8-res[1]//4, res[1]//2),
+                                   res[1]//80
+                              )
+            pygame.draw.circle(
+                                   DISPLAY,
+                                   WHITE,
+                                   (6*res[0]//8+res[1]//4, res[1]//2),
+                                   res[1]//80
+                              )
+            pygame.draw.circle(
+                                   DISPLAY,
+                                   METAL,
+                                   (res[0]//2, res[1]//2),
+                                   res[1]//4
+                              )
+            inst1 = contFont.render(
+                                        "WHEN YOU PLAY RHYTHM, " +
+                                        "SMALL OBJECTS WILL APPROACH " +
+                                        "A LARGE CIRCLE IN THE MIDDLE",
+                                        True,
+                                        WHITE
+                                   )
+            inst1Rect = inst1.get_rect()
+            inst1Rect.center = (contX, instY1)
+            DISPLAY.blit(inst1, inst1Rect)
+
         elif slide == 1:
-            pygame.draw.circle(DISPLAY, WHITE, (res[0]//2, res[1]//2), min(res)//4)
+            pygame.draw.circle(
+                                   DISPLAY,
+                                   WHITE,
+                                   (res[0]//2-res[1]//4, res[1]//2),
+                                   res[1]//80
+                              )
+            pygame.draw.circle(
+                                   DISPLAY,
+                                   WHITE,
+                                   (5*res[0]//8+res[1]//4, res[1]//2),
+                                   res[1]//80
+                              )
+            pygame.draw.circle(
+                                   DISPLAY,
+                                   WHITE,
+                                   (res[0]//2, res[1]//2),
+                                   res[1]//4
+                              )
+            inst1 = contFont.render(
+                                        "AIM TO PUSH A CONTROLLER BUTTON " +
+                                        "WHEN THE OBJECT TOUCHES THE CIRCLE",
+                                        True,
+                                        WHITE
+                                   )
+            inst1Rect = inst1.get_rect()
+            inst1Rect.center = (contX, instY1)
+            inst2 = contFont.render(
+                                        "YOU CAN USE THE D, F, J, " +
+                                        "K, AND SPACE KEYS",
+                                        True,
+                                        WHITE
+                                   )
+            inst2Rect = inst2.get_rect()
+            inst2Rect.center = (contX, instY2)
+            DISPLAY.blit(inst1, inst1Rect)
+            DISPLAY.blit(inst2, inst2Rect)
+
         elif slide == 2:
-            pygame.draw.circle(DISPLAY, WHITE, (res[0]//2, res[1]//2), min(res)//4)
+            pygame.draw.circle(
+                                   DISPLAY,
+                                   WHITE,
+                                   (res[0]//2-res[1]//4, res[1]//2),
+                                   res[1]//80
+                              )
+            pygame.draw.circle(
+                                   DISPLAY,
+                                   WHITE,
+                                   (5*res[0]//8+res[1]//4, res[1]//2),
+                                   res[1]//80
+                              )
+            pygame.draw.circle(
+                                   DISPLAY,
+                                   WHITE,
+                                   (res[0]//2, res[1]//2),
+                                   res[1]//4
+                              )
+            inst1 = contFont.render(
+                                        "EACH HIT IS GRADED OUT OF 999" +
+                                        " DEPENDING ON HOW " +
+                                        "MANY MILLISECONDS OFF IT WAS",
+                                        True,
+                                        WHITE
+                                   )
+            inst1Rect = inst1.get_rect()
+            inst1Rect.center = (contX, instY1)
+            hitHeight = res[1]//4
+            hitY = res[1]//2
+            hitFont = pygame.font.Font("res/Terminus.ttf", hitHeight)
+            hitText = hitFont.render("999", True, FULLBLACK)
+            hitRect = hitText.get_rect()
+            hitRect.center = (contX, hitY)
+            DISPLAY.blit(hitText, hitRect)
+            DISPLAY.blit(inst1, inst1Rect)
+
         pygame.display.update()
         clock.tick(240)
 
