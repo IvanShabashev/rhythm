@@ -317,12 +317,16 @@ def creds():
             artistRects.append(artistSurfaces[i].get_rect())
             artistRects[i].center = (artistX, artistYs[i])
             DISPLAY.blit(artistSurfaces[i], artistRects[i])
+
+        # Update display and lock to 240 FPS
         pygame.display.update()
         clock.tick(240)
 
 
 def instructions():
+    # This will count the slide the user is on
     slide = 0
+    # Set up the control instructions
     contY1 = (31 * res[1]) // 36
     contY2 = (33 * res[1]) // 36
     contX = res[0] // 2
@@ -339,6 +343,8 @@ def instructions():
     cont1Rect.center = (contX, contY1)
     cont2Rect = cont2.get_rect()
     cont2Rect.center = (contX, contY2)
+    # Calculate the position of the
+    # general instructions
     instY1 = (3 * res[1]) // 36
     instY2 = (5 * res[1]) // 36
     while True:
@@ -347,6 +353,8 @@ def instructions():
             if event.type == pygame.QUIT:
                 sys.exit()
             elif event.type == pygame.KEYUP:
+                # Switch slides with arrow keys
+                # Use ESC to exit
                 if event.key == pygame.K_RIGHT and slide < 2:
                     slide += 1
                 elif event.key == pygame.K_LEFT and slide > 0:
@@ -354,28 +362,34 @@ def instructions():
                 elif event.key == pygame.K_ESCAPE:
                     return
 
+        # Fill screen
         pygame.draw.rect(DISPLAY, DSLATE, (0, 0, res[0], res[1]))
+        # Display control instructions
         DISPLAY.blit(cont1, cont1Rect)
         DISPLAY.blit(cont2, cont2Rect)
         if slide == 0:
+            # Hit object #1
             pygame.draw.circle(
                                    DISPLAY,
                                    WHITE,
                                    (3*res[0]//8-res[1]//4, res[1]//2),
                                    res[1]//80
                               )
+            # Hit object #2
             pygame.draw.circle(
                                    DISPLAY,
                                    WHITE,
                                    (6*res[0]//8+res[1]//4, res[1]//2),
                                    res[1]//80
                               )
+            # Center circle
             pygame.draw.circle(
                                    DISPLAY,
                                    METAL,
                                    (res[0]//2, res[1]//2),
                                    res[1]//4
                               )
+            # General instructions
             inst1 = contFont.render(
                                         "WHEN YOU PLAY RHYTHM, " +
                                         "SMALL OBJECTS WILL APPROACH " +
@@ -388,24 +402,28 @@ def instructions():
             DISPLAY.blit(inst1, inst1Rect)
 
         elif slide == 1:
+            # Hit object #1
             pygame.draw.circle(
                                    DISPLAY,
                                    WHITE,
                                    (res[0]//2-res[1]//4, res[1]//2),
                                    res[1]//80
                               )
+            # Hit object #2
             pygame.draw.circle(
                                    DISPLAY,
                                    WHITE,
                                    (5*res[0]//8+res[1]//4, res[1]//2),
                                    res[1]//80
                               )
+            # Center circle
             pygame.draw.circle(
                                    DISPLAY,
                                    WHITE,
                                    (res[0]//2, res[1]//2),
                                    res[1]//4
                               )
+            # General instructions
             inst1 = contFont.render(
                                         "AIM TO PUSH A CONTROLLER BUTTON " +
                                         "WHEN THE OBJECT TOUCHES THE CIRCLE",
@@ -426,24 +444,28 @@ def instructions():
             DISPLAY.blit(inst2, inst2Rect)
 
         elif slide == 2:
+            # Hit object #1
             pygame.draw.circle(
                                    DISPLAY,
                                    WHITE,
                                    (res[0]//2-res[1]//4, res[1]//2),
                                    res[1]//80
                               )
+            # Hit object #2
             pygame.draw.circle(
                                    DISPLAY,
                                    WHITE,
                                    (5*res[0]//8+res[1]//4, res[1]//2),
                                    res[1]//80
                               )
+            # Center circle
             pygame.draw.circle(
                                    DISPLAY,
                                    WHITE,
                                    (res[0]//2, res[1]//2),
                                    res[1]//4
                               )
+            # General instructions
             inst1 = contFont.render(
                                         "EACH HIT IS GRADED OUT OF 999" +
                                         " DEPENDING ON HOW " +
@@ -453,6 +475,7 @@ def instructions():
                                    )
             inst1Rect = inst1.get_rect()
             inst1Rect.center = (contX, instY1)
+            # Hit score display
             hitHeight = res[1]//4
             hitY = res[1]//2
             hitFont = pygame.font.Font("res/Terminus.ttf", hitHeight)
@@ -462,6 +485,7 @@ def instructions():
             DISPLAY.blit(hitText, hitRect)
             DISPLAY.blit(inst1, inst1Rect)
 
+        # Update display and lock to 240 FPS
         pygame.display.update()
         clock.tick(240)
 
