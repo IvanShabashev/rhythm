@@ -7,6 +7,7 @@ from pydub import AudioSegment
 import struct
 from queue import Queue
 import os
+from level import Level
 
 
 def mainMenu():
@@ -80,13 +81,13 @@ def mainMenu():
         # Assume the user has not clicked the mouse yet
         clicked = False
         for event in pygame.event.get():
-            # Allow person to close the game
+            # Allow user to close the game
             if event.type == pygame.QUIT:
                 sys.exit()
-            # Check if person has clicked the mouse
+            # Check if user has clicked the mouse
             elif event.type == pygame.MOUSEBUTTONUP:
                 clicked = True
-            # Quit game if person presses escape
+            # Quit game if user presses escape
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_ESCAPE:
                     sys.exit()
@@ -289,16 +290,16 @@ def creds():
         artistSurfaces = []
         artistRects = []
         for event in pygame.event.get():
-            # Allow person to close the game
+            # Allow user to close the game
             if event.type == pygame.QUIT:
                 sys.exit()
             elif event.type == pygame.KEYUP:
-                # Allow person to scroll through the list of names
+                # Allow user to scroll through the list of names
                 if event.key == pygame.K_DOWN and credHead < len(artists)-10:
                     credHead += 1
                 elif event.key == pygame.K_UP and credHead > 0:
                     credHead -= 1
-                # Allow person to go to the previous menu screen
+                # Allow user to go to the previous menu screen
                 elif event.key == pygame.K_ESCAPE:
                     return
 
@@ -349,7 +350,7 @@ def instructions():
     instY2 = (5 * res[1]) // 36
     while True:
         for event in pygame.event.get():
-            # Allow person to close the game
+            # Allow user to close the game
             if event.type == pygame.QUIT:
                 sys.exit()
             elif event.type == pygame.KEYUP:
@@ -491,7 +492,185 @@ def instructions():
 
 
 def songSelect():
-    print("TODO: ADD SONG SELECTION SCREEN")
+    # Keep track of how far down the list the user has scrolled
+    lvlHead = 0
+    # Calculate position of the instruction text
+    # It should be centered along the X axis
+    # The position along the Y axis was mostly educated trial and error
+    instY1 = (31 * res[1]) // 36
+    instY2 = (33 * res[1]) // 36
+    instX = res[0] // 2
+    # The height of the instruction text was also mostly guesswork
+    # but since it's relative to the screen height, it will scale
+    # properly
+    instHeight = (3 * res[1]) // 72
+    # Height of the song name text should be a bit bigger
+    # than the artists name and the artists name uses the
+    # same font size as the controls
+    nameHeight = (3 * instHeight) // 2
+    nameFont = pygame.font.Font("res/Terminus.ttf", nameHeight)
+    # Render the text, positioning it according to the calculations
+    instFont = pygame.font.Font("res/Terminus.ttf", instHeight)
+    inst1 = instFont.render("USE UP/DOWN ARROW KEYS TO SCROLL", True, WHITE)
+    inst2 = instFont.render("PRESS ESC TO EXIT", True, WHITE)
+    inst1Rect = inst1.get_rect()
+    inst1Rect.center = (instX, instY1)
+    inst2Rect = inst2.get_rect()
+    inst2Rect.center = (instX, instY2)
+    # Calculate the coordinates and dimensions of the container
+    lvlBoxX = (3 * res[0])//10
+    lvlBoxY = (5 * res[1])//72
+    lvlBoxWidth = (2 * res[0])//5
+    lvlBoxHeight = (7 * res[1])//10
+    # Calculate the coordinates and dimensions of the
+    # level boxes
+    lvlX = lvlBoxX + instHeight
+    lvlHeight = (lvlBoxHeight - 4*instHeight)//3
+    lvlWidth = lvlBoxWidth - 2*instHeight
+    lvlY1 = lvlBoxY + instHeight
+    lvlY2 = lvlY1 + instHeight + lvlHeight
+    lvlY3 = lvlY2 + instHeight + lvlHeight
+    # Calculate margins for the level texts
+    textMargin = (lvlHeight-instHeight-nameHeight)//3
+    # Get all levels from the directory
+    levels = os.listdir("levels")
+    # Filter out the audio files to leave only the data files
+    levels = [i for i in levels if i.endswith(".rtm")]
+    # Initialise a level object for each data file
+    levels = [Level(i) for i in levels]
+    # Calculate positions for level textboxes
+    textX = lvlX + textMargin
+    nameY1 = lvlY1 + textMargin
+    artistY1 = nameY1 + textMargin + nameHeight
+    nameY2 = lvlY2 + textMargin
+    artistY2 = nameY2 + textMargin + nameHeight
+    nameY3 = lvlY3 + textMargin
+    artistY3 = nameY3 + textMargin + nameHeight
+
+    while True:
+        # Assume the user has not clicked the mouse yet
+        clicked = False
+        for event in pygame.event.get():
+            # Allow user to close the game
+            if event.type == pygame.QUIT:
+                sys.exit()
+            elif event.type == pygame.KEYUP:
+                # Allow user to scroll through the list of names
+                if event.key == pygame.K_DOWN and lvlHead < len(levels)-3:
+                    lvlHead += 1
+                elif event.key == pygame.K_UP and lvlHead > 0:
+                    lvlHead -= 1
+                # Allow user to go to the previous menu screen
+                elif event.key == pygame.K_ESCAPE:
+                    return
+            # Check if user has clicked the mouse
+            elif event.type == pygame.MOUSEBUTTONUP:
+                clicked = True
+
+        # Get player's mouse position
+        mouse = pygame.mouse.get_pos()
+        # Fill screen with background colour and draw the instructions text
+        pygame.draw.rect(DISPLAY, DSLATE, (0, 0, res[0], res[1]))
+        # Draw container for levels
+        pygame.draw.rect(DISPLAY, METAL, (
+                                              lvlBoxX,
+                                              lvlBoxY,
+                                              lvlBoxWidth,
+                                              lvlBoxHeight
+                                         ))
+        # Draw the background for level 1 and colour it based
+        # on whether the user hovered their mouse over it
+        if (mouse[0] >= lvlX and
+                mouse[0] <= lvlX + lvlWidth and
+                mouse[1] >= lvlY1 and
+                mouse[1] <= lvlY1 + lvlHeight):
+            pygame.draw.rect(DISPLAY, IRON, (lvlX, lvlY1, lvlWidth, lvlHeight))
+            if clicked:
+                song(levels[lvlHead])
+        else:
+            pygame.draw.rect(DISPLAY, BLACK, (
+                                                  lvlX,
+                                                  lvlY1,
+                                                  lvlWidth,
+                                                  lvlHeight
+                                             ))
+
+        # Render textboxes for the first level on the screen
+        name1 = nameFont.render(levels[lvlHead].name, True, WHITE)
+        artist1 = instFont.render(levels[lvlHead].artist, True, WHITE)
+        name1Rect = name1.get_rect()
+        artist1Rect = artist1.get_rect()
+        name1Rect.topleft = (textX, nameY1)
+        artist1Rect.topleft = (textX, artistY1)
+        # Draw the background for level 2 and colour it based
+        # on whether the user hovered their mouse over it
+        if (mouse[0] >= lvlX and
+                mouse[0] <= lvlX + lvlWidth and
+                mouse[1] >= lvlY2 and
+                mouse[1] <= lvlY2 + lvlHeight):
+            pygame.draw.rect(DISPLAY, IRON, (lvlX, lvlY2, lvlWidth, lvlHeight))
+            if clicked:
+                song(levels[lvlHead+1])
+        else:
+            pygame.draw.rect(DISPLAY, BLACK, (
+                                                  lvlX,
+                                                  lvlY2,
+                                                  lvlWidth,
+                                                  lvlHeight
+                                             ))
+
+        # Render textboxes for the second level on the screen
+        # currently disabled as there aren't enough levels
+        """name2 = nameFont.render(levels[lvlHead+1].name, True, WHITE)
+        artist2 = instFont.render(levels[lvlHead+1].artist, True, WHITE)
+        name2Rect = name2.get_rect()
+        artist2Rect = artist2.get_rect()
+        name2Rect.topleft = (textX, nameY2)
+        artist2Rect.topleft = (textX, artistY2)"""
+        # Draw the background for level 3 and colour it based
+        # on whether the user hovered their mouse over it
+        if (mouse[0] >= lvlX and
+                mouse[0] <= lvlX + lvlWidth and
+                mouse[1] >= lvlY3 and
+                mouse[1] <= lvlY3 + lvlHeight):
+            pygame.draw.rect(DISPLAY, IRON, (lvlX, lvlY3, lvlWidth, lvlHeight))
+            if clicked:
+                song(levels[lvlHead+2])
+        else:
+            pygame.draw.rect(DISPLAY, BLACK, (
+                                                  lvlX,
+                                                  lvlY3,
+                                                  lvlWidth,
+                                                  lvlHeight
+                                             ))
+
+        # Render textboxes for the third level on the screen
+        # currently disabled as there aren't enough levels
+        """name3 = nameFont.render(levels[lvlHead+2].name, True, WHITE)
+        artist3 = instFont.render(levels[lvlHead+2].artist, True, WHITE)
+        name3Rect = name3.get_rect()
+        artist3Rect = artist3.get_rect()
+        name3Rect.topleft = (textX, nameY3)
+        artist3Rect.topleft = (textX, artistY3)"""
+        # Render text explaining controls
+        DISPLAY.blit(inst1, inst1Rect)
+        DISPLAY.blit(inst2, inst2Rect)
+        # Blit the level textboxes
+        # 2 and 3 currently disables as there aren't enough levels
+        DISPLAY.blit(name1, name1Rect)
+        DISPLAY.blit(artist1, artist1Rect)
+        """DISPLAY.blit(name2, name2Rect)
+        DISPLAY.blit(artist2, artist2Rect)
+        DISPLAY.blit(name3, name3Rect)
+        DISPLAY.blit(artist3, artist3Rect)"""
+
+        # Update display and lock to 240 FPS
+        pygame.display.update()
+        clock.tick(240)
+
+
+def song(level):
+    pass
 
 
 # Fix issues when running outside of game directory
