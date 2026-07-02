@@ -36,4 +36,4 @@ class Level:
         # read in the hit data
         self.hits = []
         for i in range(0, len(hitData), 4):
-            self.hits.append(struct.unpack("<I", hitData[i:i+4])[0])
+            self.hits.append((struct.unpack("<I", hitData[i:i+4])[0])/1000)

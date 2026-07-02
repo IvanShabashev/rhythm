@@ -1,9 +1,7 @@
 import pygame
 import sys
 from pygame.locals import *
-from playsound import playsound
 import time
-from pydub import AudioSegment
 import struct
 from queue import Queue
 import os
@@ -380,7 +378,7 @@ def instructions():
             pygame.draw.circle(
                                    DISPLAY,
                                    WHITE,
-                                   (6*res[0]//8+res[1]//4, res[1]//2),
+                                   ((3*res[0])//16-res[1]//4, res[1]//2),
                                    res[1]//80
                               )
             # Center circle
@@ -414,7 +412,7 @@ def instructions():
             pygame.draw.circle(
                                    DISPLAY,
                                    WHITE,
-                                   (5*res[0]//8+res[1]//4, res[1]//2),
+                                   ((5*res[0])//16-res[1]//4, res[1]//2),
                                    res[1]//80
                               )
             # Center circle
@@ -456,7 +454,7 @@ def instructions():
             pygame.draw.circle(
                                    DISPLAY,
                                    WHITE,
-                                   (5*res[0]//8+res[1]//4, res[1]//2),
+                                   ((5*res[0])//16-res[1]//4, res[1]//2),
                                    res[1]//80
                               )
             # Center circle
@@ -585,6 +583,7 @@ def songSelect():
                 mouse[1] >= lvlY1 and
                 mouse[1] <= lvlY1 + lvlHeight):
             pygame.draw.rect(DISPLAY, IRON, (lvlX, lvlY1, lvlWidth, lvlHeight))
+            # if the player clicks the button, take them to the song menu
             if clicked:
                 song(levels[lvlHead])
         else:
@@ -610,6 +609,7 @@ def songSelect():
                 mouse[1] <= lvlY2 + lvlHeight):
             pygame.draw.rect(DISPLAY, IRON, (lvlX, lvlY2, lvlWidth, lvlHeight))
             if clicked:
+                # if the player clicks the button, take them to the song menu
                 song(levels[lvlHead+1])
         else:
             pygame.draw.rect(DISPLAY, BLACK, (
@@ -635,6 +635,7 @@ def songSelect():
                 mouse[1] <= lvlY3 + lvlHeight):
             pygame.draw.rect(DISPLAY, IRON, (lvlX, lvlY3, lvlWidth, lvlHeight))
             if clicked:
+                # if the player clicks the button, take them to the song menu
                 song(levels[lvlHead+2])
         else:
             pygame.draw.rect(DISPLAY, BLACK, (
@@ -670,13 +671,296 @@ def songSelect():
 
 
 def song(level):
-    pass
+    # Set up the exit instructions
+    contY = (33 * res[1]) // 36
+    contX = res[0] // 2
+    contHeight = (3 * res[1]) // 72
+    contFont = pygame.font.Font("res/Terminus.ttf", contHeight)
+    cont = contFont.render("PRESS ESC TO EXIT", True, WHITE)
+    contRect = cont.get_rect()
+    contRect.center = (contX, contY)
+    # Set up level name text
+    nameX = res[1] // 60
+    nameY = res[1] // 60
+    nameHeight = (18 * res[1]) // 90
+    nameFont = pygame.font.Font("res/Terminus.ttf", nameHeight)
+    name = nameFont.render(level.name, True, WHITE)
+    nameRect = name.get_rect()
+    nameRect.topleft = (nameX, nameY)
+    # Set up artist name text
+    artistY = nameY + nameHeight
+    artistHeight = nameHeight // 2
+    artistFont = pygame.font.Font("res/Terminus.ttf", artistHeight)
+    artist = artistFont.render(level.artist, True, WHITE)
+    artistRect = artist.get_rect()
+    artistRect.topleft = (nameX, artistY)
+    # Set up "HIGH SCORES" label
+    hsY = res[1] // 3
+    hs = contFont.render("HIGH SCORES:", True, WHITE)
+    hsRect = hs.get_rect()
+    hsRect.topleft = (nameX, hsY)
+    # Set up play instruction text
+    # Split over four textboxes, one per line
+    playX = (2 * res[0]) // 3
+    playY3 = res[1] // 2 - res[1] // 40
+    playY4 = playY3 + nameHeight - res[1] // 40
+    playY2 = playY3 - nameHeight + res[1] // 40
+    playY1 = playY2 - nameHeight + res[1] // 40
+    play1 = nameFont.render("PRESS", True, WHITE)
+    play2 = nameFont.render("SPACE", True, WHITE)
+    play3 = nameFont.render("TO", True, WHITE)
+    play4 = nameFont.render("PLAY", True, WHITE)
+    play1Rect = play1.get_rect()
+    play2Rect = play2.get_rect()
+    play3Rect = play3.get_rect()
+    play4Rect = play4.get_rect()
+    play1Rect.topleft = (playX, playY1)
+    play2Rect.topleft = (playX, playY2)
+    play3Rect.topleft = (playX, playY3)
+    play4Rect.topleft = (playX, playY4)
+
+    while True:
+        for event in pygame.event.get():
+            # Allow user to close the game
+            if event.type == pygame.QUIT:
+                sys.exit()
+            elif event.type == pygame.KEYUP:
+                # Use ESC to exit
+                # Press SPACE to start level
+                if event.key == pygame.K_ESCAPE:
+                    return
+                elif event.key == pygame.K_SPACE:
+                    play(level)
+
+        # Fill screen
+        pygame.draw.rect(DISPLAY, DSLATE, (0, 0, res[0], res[1]))
+        # Blit all textboxes
+        DISPLAY.blit(cont, contRect)
+        DISPLAY.blit(name, nameRect)
+        DISPLAY.blit(artist, artistRect)
+        DISPLAY.blit(hs, hsRect)
+        DISPLAY.blit(play1, play1Rect)
+        DISPLAY.blit(play2, play2Rect)
+        DISPLAY.blit(play3, play3Rect)
+        DISPLAY.blit(play4, play4Rect)
+        # Update display and lock to 240 FPS
+        pygame.display.update()
+        clock.tick(240)
+
+
+def play(level):
+    # Load the song audio
+    pygame.mixer.music.load(level.songName)
+    # Initialise the queue which will store the hit timings
+    hits = Queue(maxsize=len(level.hits))
+    # Initialise the font that will show the score per hit
+    hitHeight = res[1]//4
+    hitFont = pygame.font.Font("res/Terminus.ttf", hitHeight)
+    # Initialise total score font and location
+    scoreX = res[1] // 60
+    scoreY = res[1] // 60
+    scoreHeight = res[1] // 10
+    scoreFont = pygame.font.Font("res/Terminus.ttf", scoreHeight)
+    # Store center of screen
+    center = (res[0]//2, res[1]//2)
+    # Variable to store player's score
+    score = 0
+    # This will keep track of key presses
+    # the first item in the list is whether the key is being pressed
+    # the second item is whether the press has been used already on a hit
+    keys = {
+               pygame.K_SPACE: [False, False],
+               pygame.K_d: [False, False],
+               pygame.K_f: [False, False],
+               pygame.K_j: [False, False],
+               pygame.K_k: [False, False]
+           }
+    # When the user pauses, the timing will go out of sync
+    # this variable is used to adjust for that
+    pauseOffset = 0
+    # Play song
+    pygame.mixer.music.play()
+    # Synchronise timing offsets to current time
+    x = time.time()
+    for i in level.hits:
+        hits.put(x+i)
+
+    while True:
+        for event in pygame.event.get():
+            # Allow user to close the game
+            if event.type == pygame.QUIT:
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                # If a key is pressed down, mark it as active
+                if event.key in keys:
+                    keys[event.key][0] = True
+            elif event.type == pygame.KEYUP:
+                # Use ESC to pause
+                if event.key == pygame.K_ESCAPE:
+                    # Pause music and start timing how long the user is paused for
+                    pygame.mixer.music.pause()
+                    pauseLength = time.time()
+                    # pause returns True if the user wishes to exit the level
+                    # if the user wants to continue, pause returns false
+                    if pause():
+                        return
+                    # calculate pause adjustment
+                    pauseOffset += time.time() - pauseLength
+                    # unpause the music
+                    pygame.mixer.music.unpause()
+                elif event.key in keys:
+                    # If a key is no longer pressed, mark it as inactive
+                    # additionally, mark it as being open to presses
+                    keys[event.key][0] = False
+                    keys[event.key][1] = False
+
+        # Adjust timings according to the pauses
+        timeOff = time.time() - pauseOffset
+        # Fill screen
+        pygame.draw.rect(DISPLAY, DSLATE, (0, 0, res[0], res[1]))
+        # flash keeps track of whether a key is being held down
+        flash = False
+        # click keeps track of whether a key was just pressed on this frame
+        click = False
+        for key, press in keys.items():
+            if press[0]:
+                flash = True
+                if not press[1]:
+                    click = True
+                    keys[key][1] = True
+        # Flash the circle with white if the user is holding a key
+        if flash:
+            pygame.draw.circle(DISPLAY, WHITE, center, res[1]//4)
+        else:
+            pygame.draw.circle(DISPLAY, METAL, center, res[1]//4)
+
+        # Only work with hit objects if there are some hit objects left
+        # otherwise, the game crashes
+        if not hits.empty():
+            # Render hit objects
+            # At the same time, if the hit object passes the halfway
+            # point on the screen, remove it and count it as a missed object.
+            missed = False
+            for hit in hits.queue:
+                hitX = (res[0]//2 - res[1]//4) * (1 - (hit-timeOff))
+                if hitX > res[0]//2:
+                    missed = True
+                elif hitX > 0:
+                    pygame.draw.circle(
+                                           DISPLAY,
+                                           WHITE,
+                                           (hitX, res[1]//2),
+                                           res[1]//80
+                                      )
+            if missed:
+                hits.get()
+            # If the user has just pressed a key on this frame
+            # Count it as a hit
+            if click:
+                # Do not allow negative scores
+                hitVal = max(0, int((1 - abs(timeOff - hits.get()))*1000))
+                score += hitVal
+
+            
+            # If circle is white, display the score of the last hit
+            if flash:
+                hitText = hitFont.render(str(hitVal), True, FULLBLACK)
+                hitRect = hitText.get_rect()
+                hitRect.center = center
+                DISPLAY.blit(hitText, hitRect)
+
+        # Display the player's current score
+        scoreText = scoreFont.render(str(score), True, WHITE)
+        scoreRect = scoreText.get_rect()
+        scoreRect.topleft = (scoreX, scoreY)
+        DISPLAY.blit(scoreText, scoreRect)
+
+        # If the song finished playing, the level ends
+        if not pygame.mixer.music.get_busy():
+            done(level, score)
+            return
+        # Update display and lock to 240 FPS
+        pygame.display.update()
+        clock.tick(240)
+
+
+def pause():
+    # Initialise and position control instructions
+    # do NOT fill screen as we want the user to be
+    # able to see the game in the background
+    textHeight = (3 * res[1])//72
+    textFont = pygame.font.Font("res/Terminus.ttf", textHeight)
+    textX = res[0]//2
+    textY1 = (3 * res[1]) // 36
+    textY2 = (33 * res[1]) // 36
+    text1 = textFont.render("PRESS SPACE TO CONTINUE", True, WHITE)
+    text2 = textFont.render("PRESS ESC TO EXIT", True, WHITE)
+    text1Rect = text1.get_rect()
+    text2Rect = text2.get_rect()
+    text1Rect.center = (textX, textY1)
+    text2Rect.center = (textX, textY2)
+    DISPLAY.blit(text1, text1Rect)
+    DISPLAY.blit(text2, text2Rect)
+
+    while True:
+        for event in pygame.event.get():
+            # Allow user to close the game
+            if event.type == pygame.QUIT:
+                sys.exit()
+            elif event.type == pygame.KEYUP:
+                # Use ESC to exit
+                # Press SPACE to continue game
+                # pause returns True if the user wishes to exit the level
+                # if the user wants to continue, pause returns false
+                if event.key == pygame.K_ESCAPE:
+                    return True
+                elif event.key == pygame.K_SPACE:
+                    return False
+        # Update display and lock to 240 FPS
+        pygame.display.update()
+        clock.tick(240)
+
+
+def done(level, score):
+    # Initialise the two textboxes showing the user
+    # their final score
+    textHeight = (2 * res[1])//9
+    textFont = pygame.font.Font("res/Terminus.ttf", textHeight)
+    textX = res[0]//2
+    textY1 = res[1]//6
+    textY2 = res[1]//2
+    text1 = textFont.render("FINAL SCORE:", True, WHITE)
+    text2 = textFont.render(str(score), True, WHITE)
+    text1Rect = text1.get_rect()
+    text2Rect = text2.get_rect()
+    text1Rect.center = (textX, textY1)
+    text2Rect.center = (textX, textY2)
+
+    while True:
+        for event in pygame.event.get():
+            # Allow user to close the game
+            if event.type == pygame.QUIT:
+                sys.exit()
+            elif event.type == pygame.KEYUP:
+                # Use ESC or SPACE to continues
+                if event.key == pygame.K_ESCAPE or event.key == pygame.K_SPACE:
+                    return
+
+        # Fill screen
+        pygame.draw.rect(DISPLAY, DSLATE, (0, 0, res[0], res[1]))
+        # Blit the textboxes
+        DISPLAY.blit(text1, text1Rect)
+        DISPLAY.blit(text2, text2Rect)
+        # Update display and lock to 240 FPS
+        pygame.display.update()
+        clock.tick(240)
 
 
 # Fix issues when running outside of game directory
 os.chdir(os.path.dirname(__file__))
 # Initialise pygame
 pygame.init()
+pygame.mixer.init()
 clock = pygame.time.Clock()
 # Choose highest possible reslution for fullscreen
 res = pygame.display.list_modes()[0]
