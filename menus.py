@@ -699,6 +699,13 @@ def song(level):
     hs = contFont.render("HIGH SCORES:", True, WHITE)
     hsRect = hs.get_rect()
     hsRect.topleft = (nameX, hsY)
+    # Load the highscores
+    scores = level.getScores()
+    scores = [str(i) for i in scores]
+    # Set up highscores table Y offsets
+    scoreYs = []
+    for i in range(len(scores)):
+        scoreYs.append(hsY + contHeight * (i + 1))
     # Set up play instruction text
     # Split over four textboxes, one per line
     playX = (2 * res[0]) // 3
@@ -720,6 +727,10 @@ def song(level):
     play4Rect.topleft = (playX, playY4)
 
     while True:
+        # These two lists will later hold data
+        # for the highscore table textboxes
+        scoreSurfaces = []
+        scoreRects = []
         for event in pygame.event.get():
             # Allow user to close the game
             if event.type == pygame.QUIT:
@@ -731,6 +742,13 @@ def song(level):
                     return
                 elif event.key == pygame.K_SPACE:
                     play(level)
+                    # Reload the highscores
+                    scores = level.getScores()
+                    scores = [str(i) for i in scores]
+                    # Reload highscores table Y offsets
+                    scoreYs = []
+                    for i in range(len(scores)):
+                        scoreYs.append(hsY + contHeight * (i + 1))
 
         # Fill screen
         pygame.draw.rect(DISPLAY, DSLATE, (0, 0, res[0], res[1]))
@@ -743,6 +761,16 @@ def song(level):
         DISPLAY.blit(play2, play2Rect)
         DISPLAY.blit(play3, play3Rect)
         DISPLAY.blit(play4, play4Rect)
+        # Render and blit highscores table
+        for i in range(len(scores)):
+            scoreSurfaces.append(contFont.render(
+                                                     scores[i],
+                                                     True,
+                                                     WHITE
+                                                ))
+            scoreRects.append(scoreSurfaces[i].get_rect())
+            scoreRects[i].topleft = (nameX, scoreYs[i])
+            DISPLAY.blit(scoreSurfaces[i], scoreRects[i])
         # Update display and lock to 240 FPS
         pygame.display.update()
         clock.tick(240)
@@ -797,7 +825,8 @@ def play(level):
             elif event.type == pygame.KEYUP:
                 # Use ESC to pause
                 if event.key == pygame.K_ESCAPE:
-                    # Pause music and start timing how long the user is paused for
+                    # Pause music and start timing how long the game
+                    # has been paused for
                     pygame.mixer.music.pause()
                     pauseLength = time.time()
                     # pause returns True if the user wishes to exit the level
@@ -861,7 +890,6 @@ def play(level):
                 hitVal = max(0, int((1 - abs(timeOff - hits.get()))*1000))
                 score += hitVal
 
-            
             # If circle is white, display the score of the last hit
             if flash:
                 hitText = hitFont.render(str(hitVal), True, FULLBLACK)
@@ -922,6 +950,8 @@ def pause():
 
 
 def done(level, score):
+    # Save user's score
+    level.saveScore(score)
     # Initialise the two textboxes showing the user
     # their final score
     textHeight = (2 * res[1])//9

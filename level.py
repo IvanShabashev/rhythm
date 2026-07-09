@@ -33,7 +33,49 @@ class Level:
         # by removing the "rtm" extension
         self.songName = os.path.splitext(self.fileName)[0]
         self.songName = os.path.join("levels", self.songName)
+        # get the level's highscore file's name
+        self.scoreFileName = self.songName + ".hsc"
         # read in the hit data
         self.hits = []
         for i in range(0, len(hitData), 4):
             self.hits.append((struct.unpack("<I", hitData[i:i+4])[0])/1000)
+
+    def saveScore(self, score):
+        # get the current highscores
+        scores = self.getScores()
+        # check if the new score is high enough
+        # to be added
+        if len(scores) == 10 and min(scores) > score:
+            return
+        # if we already have 10 scores, remove the lowest one
+        # the lowest score will always be the last on the list
+        # as the list is sorted
+        if len(scores) == 10:
+            scores = scores[:-1]
+        # remove the lowest score
+        scores.append(score)
+        # sort the list again
+        scores.sort(reverse=True)
+        # get the scores in a CSV format and then
+        # write the scores to the highscore file
+        scores = ','.join(str(i) for i in scores)
+        with open(self.scoreFileName, "w") as f:
+            f.write(scores)
+
+    def getScores(self):
+        # if highscores file does not exist,
+        # return no highscores
+        if not os.path.exists(self.scoreFileName):
+            return []
+        # read in the CSV highscore data
+        with open(self.scoreFileName) as f:
+            scores = f.read()
+        # split the CSV to a list
+        scores = scores.split(',')
+        # check if any highscores are found
+        if scores != [""]:
+            # if they are, convert them to integers and return a list
+            return [int(i) for i in scores]
+        else:
+            # otherwise, simply return an empty list
+            return []
