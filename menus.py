@@ -619,14 +619,12 @@ def songSelect():
                                                   lvlHeight
                                              ))
 
-        # Render textboxes for the second level on the screen
-        # currently disabled as there aren't enough levels
-        """name2 = nameFont.render(levels[lvlHead+1].name, True, WHITE)
+        name2 = nameFont.render(levels[lvlHead+1].name, True, WHITE)
         artist2 = instFont.render(levels[lvlHead+1].artist, True, WHITE)
         name2Rect = name2.get_rect()
         artist2Rect = artist2.get_rect()
         name2Rect.topleft = (textX, nameY2)
-        artist2Rect.topleft = (textX, artistY2)"""
+        artist2Rect.topleft = (textX, artistY2)
         # Draw the background for level 3 and colour it based
         # on whether the user hovered their mouse over it
         if (mouse[0] >= lvlX and
@@ -657,12 +655,12 @@ def songSelect():
         DISPLAY.blit(inst1, inst1Rect)
         DISPLAY.blit(inst2, inst2Rect)
         # Blit the level textboxes
-        # 2 and 3 currently disables as there aren't enough levels
+        # 3 currently disabled as there aren't enough levels
         DISPLAY.blit(name1, name1Rect)
         DISPLAY.blit(artist1, artist1Rect)
-        """DISPLAY.blit(name2, name2Rect)
+        DISPLAY.blit(name2, name2Rect)
         DISPLAY.blit(artist2, artist2Rect)
-        DISPLAY.blit(name3, name3Rect)
+        """DISPLAY.blit(name3, name3Rect)
         DISPLAY.blit(artist3, artist3Rect)"""
 
         # Update display and lock to 240 FPS
@@ -684,7 +682,10 @@ def song(level):
     nameY = res[1] // 60
     nameHeight = (18 * res[1]) // 90
     nameFont = pygame.font.Font("res/Terminus.ttf", nameHeight)
-    name = nameFont.render(level.name, True, WHITE)
+    if len(level.name) <= 11:
+        name = nameFont.render(level.name, True, WHITE)
+    else:
+        name = nameFont.render(level.name[:7]+"..", True, WHITE)
     nameRect = name.get_rect()
     nameRect.topleft = (nameX, nameY)
     # Set up artist name text
