@@ -3,6 +3,7 @@ CreoMusic
 Dimitar Zhekov
 Eric Cheng
 Nightmargin
+ParagonX9
 ppy
 pygame
 Robert Topala
