@@ -533,7 +533,8 @@ def songSelect():
     # Get all levels from the directory
     levels = os.listdir("levels")
     # Filter out the audio files to leave only the data files
-    levels = [i for i in levels if i.endswith(".rtm")]
+    # Sort the filenames to have a consistent order
+    levels = sorted([i for i in levels if i.endswith(".rtm")])
     # Initialise a level object for each data file
     levels = [Level(i) for i in levels]
     # Calculate positions for level textboxes
@@ -644,24 +645,22 @@ def songSelect():
                                              ))
 
         # Render textboxes for the third level on the screen
-        # currently disabled as there aren't enough levels
-        """name3 = nameFont.render(levels[lvlHead+2].name, True, WHITE)
+        name3 = nameFont.render(levels[lvlHead+2].name, True, WHITE)
         artist3 = instFont.render(levels[lvlHead+2].artist, True, WHITE)
         name3Rect = name3.get_rect()
         artist3Rect = artist3.get_rect()
         name3Rect.topleft = (textX, nameY3)
-        artist3Rect.topleft = (textX, artistY3)"""
+        artist3Rect.topleft = (textX, artistY3)
         # Render text explaining controls
         DISPLAY.blit(inst1, inst1Rect)
         DISPLAY.blit(inst2, inst2Rect)
         # Blit the level textboxes
-        # 3 currently disabled as there aren't enough levels
         DISPLAY.blit(name1, name1Rect)
         DISPLAY.blit(artist1, artist1Rect)
         DISPLAY.blit(name2, name2Rect)
         DISPLAY.blit(artist2, artist2Rect)
-        """DISPLAY.blit(name3, name3Rect)
-        DISPLAY.blit(artist3, artist3Rect)"""
+        DISPLAY.blit(name3, name3Rect)
+        DISPLAY.blit(artist3, artist3Rect)
 
         # Update display and lock to 240 FPS
         pygame.display.update()
