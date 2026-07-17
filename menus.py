@@ -252,6 +252,9 @@ def mainMenu():
 def creds():
     # Read list of people in the game's credits
     artists = open("credits.txt").read().split("\n")
+    # Fix off by one error
+    if artists[-1] == "":
+        artists = artists[:-1]
     # Keep track of how far down the list the user has scrolled
     credHead = 0
     # Calculate position of the instruction text
